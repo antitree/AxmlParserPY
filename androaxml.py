@@ -23,10 +23,6 @@ from optparse import OptionParser
 from xml.dom import minidom
 import codecs
 
-PATH_INSTALL = "./"
-sys.path.append(PATH_INSTALL + "./core/")
-sys.path.append(PATH_INSTALL + "./core/bytecodes")
-
 import apk, androconf
 
 option_0 = { 'name' : ('-i', '--input'), 'help' : 'filename input (APK or android\'s binary xml)', 'nargs' : 1 }
@@ -35,16 +31,23 @@ option_2 = { 'name' : ('-v', '--version'), 'help' : 'version of the API', 'actio
 options = [option_0, option_1, option_2]
 
 def main(options, arguments) :
+
     if options.input != None and options.output != None :
+
         buff = ""
 
         ret_type = androconf.is_android( options.input )
+
         if ret_type == "APK" :
+
             a = apk.APK( options.input )
             buff = a.xml[ "AndroidManifest.xml" ].toprettyxml()
+
         elif ".xml" in options.input :
+
             ap = apk.AXMLPrinter( open(options.input, "rb").read() )
             buff = minidom.parseString( ap.getBuff() ).toprettyxml()
+
         else :
             print "Unknown file type"
             return
@@ -52,6 +55,7 @@ def main(options, arguments) :
         fd = codecs.open(options.output, "w", "utf-8")
         fd.write( buff )
         fd.close()
+
     elif options.version != None :
         print "Androaxml version %s" % androconf.ANDROAXML_VERSION
 
@@ -65,3 +69,6 @@ if __name__ == "__main__" :
     options, arguments = parser.parse_args()
     sys.argv[:] = arguments
     main(options, arguments)
+
+
+
