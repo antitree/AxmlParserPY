@@ -20,7 +20,7 @@ import bytecode
 
 import androconf
 from bytecode import SV
-from dvm_permissions import DVM_PERMISSIONS
+#from dvm_permissions import DVM_PERMISSIONS
 
 import zipfile, StringIO
 from struct import pack, unpack
@@ -274,26 +274,6 @@ class APK :
         """
         return self.permissions
 
-    def get_details_permissions(self) :
-        """
-            Return permissions with details
-        """
-        l = {}
-
-        for i in self.permissions :
-            perm = i
-            pos = i.rfind(".")
-
-            if pos != -1 :
-                perm = i[pos+1:]
-            
-            try :
-                l[ i ] = DVM_PERMISSIONS["MANIFEST_PERMISSION"][ perm ]
-            except KeyError :
-                l[ i ] = [ "dangerous", "Unknown permission from android reference", "Unknown permission from android reference" ]
-
-        return l
-
     def get_min_sdk_version(self) :
         """
             Return the android:minSdkVersion attribute
@@ -315,7 +295,6 @@ class APK :
     def show(self) :
         print "FILES : ", self.get_files_types()
 
-        print "PERMISSIONS : ", self.get_details_permissions()
         print "ACTIVITIES : ", self.get_activities()
         print "SERVICES : ", self.get_services()
         print "RECEIVERS : ", self.get_receivers()
