@@ -18,16 +18,7 @@
 
 import logging, types, random, string
 
-ANDROGUARD_VERSION = "1.0"
-
-CONF = {
-    "BIN_DED" : "ded.sh",
-    "PATH_DED" : "./decompiler/ded/",
-    "PATH_DEX2JAR" : "./decompiler/dex2jar/",
-    "BIN_DEX2JAR" : "dex2jar.sh",
-    "PATH_JAD" : "./decompiler/jad/",
-    "BIN_JAD" : "jad",
-}
+ANDROAXML_VERSION = "0.0.1"
 
 class Color:
     normal = "\033[0m"
