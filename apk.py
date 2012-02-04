@@ -19,6 +19,7 @@
 import bytecode
 
 import androconf
+from axmlprinter import AXMLPrinter
 from bytecode import SV
 
 import zipfile, StringIO

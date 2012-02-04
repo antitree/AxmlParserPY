@@ -21,26 +21,39 @@ import bytecode
 import androconf
 from bytecode import SV
 
-import zipfile, StringIO
+import StringIO
 from struct import pack, unpack
 from xml.dom import minidom
-
-try :
-    import chilkat
-    ZIPMODULE = 0
-    # UNLOCK : change it with your valid key !
-    try : 
-        CHILKAT_KEY = open("key.txt", "rb").read()
-    except Exception :
-        CHILKAT_KEY = "testme"
-
-except ImportError :
-    ZIPMODULE = 1
 
 
 ######################################################## AXML FORMAT ########################################################
 # Translated from http://code.google.com/p/android4me/source/browse/src/android/content/res/AXmlResourceParser.java
 class StringBlock :
+
+	
+    ATTRIBUTE_IX_NAMESPACE_URI  = 0
+    ATTRIBUTE_IX_NAME           = 1
+    ATTRIBUTE_IX_VALUE_STRING   = 2
+    ATTRIBUTE_IX_VALUE_TYPE     = 3
+    ATTRIBUTE_IX_VALUE_DATA     = 4
+    ATTRIBUTE_LENGTH            = 5
+
+    CHUNK_AXML_FILE             = 0x00080003
+    CHUNK_RESOURCEIDS           = 0x00080180
+    CHUNK_XML_FIRST             = 0x00100100
+    CHUNK_XML_START_NAMESPACE   = 0x00100100
+    CHUNK_XML_END_NAMESPACE     = 0x00100101
+    CHUNK_XML_START_TAG         = 0x00100102
+    CHUNK_XML_END_TAG           = 0x00100103
+    CHUNK_XML_TEXT              = 0x00100104
+    CHUNK_XML_LAST              = 0x00100104
+
+    START_DOCUMENT              = 0
+    END_DOCUMENT                = 1
+    START_TAG                   = 2
+    END_TAG                     = 3
+    TEXT                        = 4
+
     def __init__(self, buff) :
         buff.read( 4 )
 
@@ -116,26 +129,4 @@ class StringBlock :
         else :
             return value >> 16
 
-ATTRIBUTE_IX_NAMESPACE_URI  = 0
-ATTRIBUTE_IX_NAME           = 1
-ATTRIBUTE_IX_VALUE_STRING   = 2
-ATTRIBUTE_IX_VALUE_TYPE     = 3
-ATTRIBUTE_IX_VALUE_DATA     = 4
-ATTRIBUTE_LENGHT            = 5
-
-CHUNK_AXML_FILE             = 0x00080003
-CHUNK_RESOURCEIDS           = 0x00080180
-CHUNK_XML_FIRST             = 0x00100100
-CHUNK_XML_START_NAMESPACE   = 0x00100100
-CHUNK_XML_END_NAMESPACE     = 0x00100101
-CHUNK_XML_START_TAG         = 0x00100102
-CHUNK_XML_END_TAG           = 0x00100103
-CHUNK_XML_TEXT              = 0x00100104
-CHUNK_XML_LAST              = 0x00100104
-
-START_DOCUMENT              = 0
-END_DOCUMENT                = 1
-START_TAG                   = 2
-END_TAG                     = 3
-TEXT                        = 4
 

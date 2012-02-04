@@ -19,24 +19,14 @@
 import bytecode
 
 import androconf
+import typeconstants as tc
+from stringblock import StringBlock
+from axmlparser import AXMLParser
 from bytecode import SV
 
-import zipfile, StringIO
+import StringIO
 from struct import pack, unpack
 from xml.dom import minidom
-
-try :
-    import chilkat
-    ZIPMODULE = 0
-    # UNLOCK : change it with your valid key !
-    try : 
-        CHILKAT_KEY = open("key.txt", "rb").read()
-    except Exception :
-        CHILKAT_KEY = "testme"
-
-except ImportError :
-    ZIPMODULE = 1
-
 
 class AXMLPrinter :
     def __init__(self, raw_buff) :
@@ -49,9 +39,9 @@ class AXMLPrinter :
             _type = self.axml.next()
 #           print "tagtype = ", _type
 
-            if _type == START_DOCUMENT :
+            if _type == StringBlock.START_DOCUMENT :
                 self.buff += "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
-            elif _type == START_TAG :
+            elif _type == StringBlock.START_TAG :
                 self.buff += "<%s%s\n" % ( self.getPrefix( self.axml.getPrefix() ), self.axml.getName() )
 
                 # FIXME : use namespace
@@ -64,13 +54,13 @@ class AXMLPrinter :
 
                 self.buff += ">\n"
 
-            elif _type == END_TAG :
+            elif _type == StringBlock.END_TAG :
                 self.buff += "</%s%s>\n" % ( self.getPrefix( self.axml.getPrefix() ), self.axml.getName() )
 
-            elif _type == TEXT :
+            elif _type == StringBlock.TEXT :
                 self.buff += "%s\n" % self.axml.getText()
 
-            elif _type == END_DOCUMENT :
+            elif _type == StringBlock.END_DOCUMENT :
                 break
 
     def getBuff(self) :
@@ -87,43 +77,43 @@ class AXMLPrinter :
         _data = self.axml.getAttributeValueData(index)
 
         #print _type, _data
-        if _type == TYPE_STRING :
+        if _type == tc.TYPE_STRING :
             return self.axml.getAttributeValue( index )
 
-        elif _type == TYPE_ATTRIBUTE :
+        elif _type == tc.TYPE_ATTRIBUTE :
             return "?%s%08X" % (self.getPackage(_data), _data)
 
-        elif _type == TYPE_REFERENCE :
+        elif _type == tc.TYPE_REFERENCE :
             return "@%s%08X" % (self.getPackage(_data), _data)
 
         # WIP
-        elif _type == TYPE_FLOAT :
+        elif _type == tc.TYPE_FLOAT :
             return "%f" % unpack("=f", pack("=L", _data))[0] 
 
-        elif _type == TYPE_INT_HEX :
+        elif _type == tc.TYPE_INT_HEX :
             return "0x%08X" % _data
 
-        elif _type == TYPE_INT_BOOLEAN :
+        elif _type == tc.TYPE_INT_BOOLEAN :
             if _data == 0 :
                 return "false"
             return "true"
 
-        elif _type == TYPE_DIMENSION :
-            return "%f%s" % (self.complexToFloat(_data), DIMENSION_UNITS[_data & COMPLEX_UNIT_MASK])
+        elif _type == tc.TYPE_DIMENSION :
+            return "%f%s" % (self.complexToFloat(_data), tc.DIMENSION_UNITS[_data & tc.COMPLEX_UNIT_MASK])
 
-        elif _type == TYPE_FRACTION :
-            return "%f%s" % (self.complexToFloat(_data), FRACTION_UNITS[_data & COMPLEX_UNIT_MASK])
+        elif _type == tc.TYPE_FRACTION :
+            return "%f%s" % (self.complexToFloat(_data), tc.FRACTION_UNITS[_data & tc.COMPLEX_UNIT_MASK])
 
-        elif _type >= TYPE_FIRST_COLOR_INT and _type <= TYPE_LAST_COLOR_INT :
+        elif _type >= tc.TYPE_FIRST_COLOR_INT and _type <= tc.TYPE_LAST_COLOR_INT :
             return "#%08X" % _data
 
-        elif _type >= TYPE_FIRST_INT and _type <= TYPE_LAST_INT :
+        elif _type >= tc.TYPE_FIRST_INT and _type <= tc.TYPE_LAST_INT :
             return "%d" % androconf.long2int( _data )
 
         return "<0x%X, type 0x%02X>" % (_data, _type)
 
     def complexToFloat(self, xcomplex) :
-        return (float)(xcomplex & 0xFFFFFF00)*RADIX_MULTS[(xcomplex>>4) & 3];
+        return (float)(xcomplex & 0xFFFFFF00) * tc.RADIX_MULTS[(xcomplex>>4) & 3];
 
     def getPackage(self, id) :
         if id >> 24 == 1 :

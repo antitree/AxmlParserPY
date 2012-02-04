@@ -19,26 +19,18 @@
 import bytecode
 
 import androconf
+import stringblock
+import typeconstants as tc
+from stringblock import StringBlock
 from bytecode import SV
 
-import zipfile, StringIO
+import StringIO
 from struct import pack, unpack
 from xml.dom import minidom
 
-try :
-    import chilkat
-    ZIPMODULE = 0
-    # UNLOCK : change it with your valid key !
-    try : 
-        CHILKAT_KEY = open("key.txt", "rb").read()
-    except Exception :
-        CHILKAT_KEY = "testme"
-
-except ImportError :
-    ZIPMODULE = 1
-
 
 class AXMLParser :
+
     def __init__(self, raw_buff) :
         self.reset()
 
@@ -69,7 +61,7 @@ class AXMLParser :
         return self.m_event
 
     def doNext(self) :
-        if self.m_event == END_DOCUMENT :
+        if self.m_event == StringBlock.END_DOCUMENT :
             return
 
         event = self.m_event
@@ -79,20 +71,20 @@ class AXMLParser :
             chunkType = -1
 
             # Fake END_DOCUMENT event.
-            if event == END_TAG :
+            if event == StringBlock.END_TAG :
                 pass
 
             # START_DOCUMENT
-            if event == START_DOCUMENT :
-                chunkType = CHUNK_XML_START_TAG
+            if event == StringBlock.START_DOCUMENT :
+                chunkType = StringBlock.CHUNK_XML_START_TAG
             else :
                 if self.buff.end() == True :
-                    self.m_event = END_DOCUMENT
+                    self.m_event = StringBlock.END_DOCUMENT
                     break
                 chunkType = SV( '<L', self.buff.read( 4 ) ).get_value()
 
 
-            if chunkType == CHUNK_RESOURCEIDS :
+            if chunkType == StringBlock.CHUNK_RESOURCEIDS :
                 chunkSize = SV( '<L', self.buff.read( 4 ) ).get_value()
                 # FIXME
                 if chunkSize < 8 or chunkSize%4 != 0 :
@@ -104,20 +96,20 @@ class AXMLParser :
                 continue
 
             # FIXME
-            if chunkType < CHUNK_XML_FIRST or chunkType > CHUNK_XML_LAST :
+            if chunkType < StringBlock.CHUNK_XML_FIRST or chunkType > StringBlock.CHUNK_XML_LAST :
                 raise("ooo")
 
             # Fake START_DOCUMENT event.
-            if chunkType == CHUNK_XML_START_TAG and event == -1 :
-                self.m_event = START_DOCUMENT
+            if chunkType == StringBlock.CHUNK_XML_START_TAG and event == -1 :
+                self.m_event = StringBlock.START_DOCUMENT
                 break
 
             self.buff.read( 4 ) #/*chunkSize*/
             lineNumber = SV( '<L', self.buff.read( 4 ) ).get_value()
             self.buff.read( 4 ) #0xFFFFFFFF
 
-            if chunkType == CHUNK_XML_START_NAMESPACE or chunkType == CHUNK_XML_END_NAMESPACE :
-                if chunkType == CHUNK_XML_START_NAMESPACE :
+            if chunkType == StringBlock.CHUNK_XML_START_NAMESPACE or chunkType == StringBlock.CHUNK_XML_END_NAMESPACE :
+                if chunkType == StringBlock.CHUNK_XML_START_NAMESPACE :
                     prefix = SV( '<L', self.buff.read( 4 ) ).get_value()
                     uri = SV( '<L', self.buff.read( 4 ) ).get_value()
 
@@ -136,7 +128,7 @@ class AXMLParser :
 
             self.m_lineNumber = lineNumber
 
-            if chunkType == CHUNK_XML_START_TAG :
+            if chunkType == StringBlock.CHUNK_XML_START_TAG :
                 self.m_namespaceUri = SV( '<L', self.buff.read( 4 ) ).get_value()
                 self.m_name = SV( '<L', self.buff.read( 4 ) ).get_value()
 
@@ -151,29 +143,29 @@ class AXMLParser :
 
                 self.m_classAttribute = (self.m_classAttribute & 0xFFFF) - 1
 
-                for i in range(0, attributeCount*ATTRIBUTE_LENGHT) :
+                for i in range(0, attributeCount*StringBlock.ATTRIBUTE_LENGTH) :
                     self.m_attributes.append( SV( '<L', self.buff.read( 4 ) ).get_value() )
 
-                for i in range(ATTRIBUTE_IX_VALUE_TYPE, len(self.m_attributes), ATTRIBUTE_LENGHT) :
+                for i in range(StringBlock.ATTRIBUTE_IX_VALUE_TYPE, len(self.m_attributes), StringBlock.ATTRIBUTE_LENGTH) :
                     self.m_attributes[i] = (self.m_attributes[i]>>24)
 
-                self.m_event = START_TAG
+                self.m_event = StringBlock.START_TAG
                 break
 
-            if chunkType == CHUNK_XML_END_TAG :
+            if chunkType == StringBlock.CHUNK_XML_END_TAG :
                 self.m_namespaceUri = SV( '<L', self.buff.read( 4 ) ).get_value()
                 self.m_name = SV( '<L', self.buff.read( 4 ) ).get_value()
-                self.m_event = END_TAG
+                self.m_event = StringBlock.END_TAG
                 break
 
-            if chunkType == CHUNK_XML_TEXT :
+            if chunkType == StringBlock.CHUNK_XML_TEXT :
                 self.m_name = SV( '<L', self.buff.read( 4 ) ).get_value()
                 
                 # FIXME
                 self.buff.read( 4 ) #?
                 self.buff.read( 4 ) #?
 
-                self.m_event = TEXT
+                self.m_event = StringBlock.TEXT
                 break
 
     def getPrefixByUri(self, uri) :
@@ -189,13 +181,13 @@ class AXMLParser :
             return ""
 
     def getName(self) :
-        if self.m_name == -1 or (self.m_event != START_TAG and self.m_event != END_TAG) :
+        if self.m_name == -1 or (self.m_event != StringBlock.START_TAG and self.m_event != StringBlock.END_TAG) :
             return ""
 
         return self.sb.getRaw(self.m_name)
 
     def getText(self) :
-        if self.m_name == -1 or self.m_event != TEXT :
+        if self.m_name == -1 or self.m_event != StringBlock.TEXT :
             return ""
 
         return self.sb.getRaw(self.m_name)
@@ -213,7 +205,7 @@ class AXMLParser :
 
     def getAttributeOffset(self, index) :
         # FIXME
-        if self.m_event != START_TAG :
+        if self.m_event != StringBlock.START_TAG :
             raise("Current event is not START_TAG.")
 
         offset = index * 5
@@ -224,14 +216,14 @@ class AXMLParser :
         return offset
 
     def getAttributeCount(self) :
-        if self.m_event != START_TAG :
+        if self.m_event != StringBlock.START_TAG :
             return -1
 
-        return len(self.m_attributes) / ATTRIBUTE_LENGHT
+        return len(self.m_attributes) / StringBlock.ATTRIBUTE_LENGTH
 
     def getAttributePrefix(self, index) :
         offset = self.getAttributeOffset(index)
-        uri = self.m_attributes[offset+ATTRIBUTE_IX_NAMESPACE_URI]
+        uri = self.m_attributes[offset+StringBlock.ATTRIBUTE_IX_NAMESPACE_URI]
 
         prefix = self.getPrefixByUri( uri )
         if prefix == -1 :
@@ -241,7 +233,7 @@ class AXMLParser :
 
     def getAttributeName(self, index) :
         offset = self.getAttributeOffset(index)
-        name = self.m_attributes[offset+ATTRIBUTE_IX_NAME]
+        name = self.m_attributes[offset+StringBlock.ATTRIBUTE_IX_NAME]
 
         if name == -1 :
             return ""
@@ -250,45 +242,21 @@ class AXMLParser :
 
     def getAttributeValueType(self, index) :
         offset = self.getAttributeOffset(index)
-        return self.m_attributes[offset+ATTRIBUTE_IX_VALUE_TYPE]
+        return self.m_attributes[offset+StringBlock.ATTRIBUTE_IX_VALUE_TYPE]
 
     def getAttributeValueData(self, index) :
         offset = self.getAttributeOffset(index)
-        return self.m_attributes[offset+ATTRIBUTE_IX_VALUE_DATA]
+        return self.m_attributes[offset+StringBlock.ATTRIBUTE_IX_VALUE_DATA]
 
     def getAttributeValue(self, index) :
         offset = self.getAttributeOffset(index)
-        valueType = self.m_attributes[offset+ATTRIBUTE_IX_VALUE_TYPE]
-        if valueType == TYPE_STRING :
-            valueString = self.m_attributes[offset+ATTRIBUTE_IX_VALUE_STRING]
+        valueType = self.m_attributes[offset+StringBlock.ATTRIBUTE_IX_VALUE_TYPE]
+        if valueType == tc.TYPE_STRING :
+            valueString = self.m_attributes[offset+StringBlock.ATTRIBUTE_IX_VALUE_STRING]
             return self.sb.getRaw( valueString )
         # WIP
         return ""
         #int valueData=m_attributes[offset+ATTRIBUTE_IX_VALUE_DATA];
         #return TypedValue.coerceToString(valueType,valueData);
 
-TYPE_ATTRIBUTE          = 2
-TYPE_DIMENSION          = 5
-TYPE_FIRST_COLOR_INT    = 28
-TYPE_FIRST_INT          = 16
-TYPE_FLOAT              = 4
-TYPE_FRACTION           = 6
-TYPE_INT_BOOLEAN        = 18
-TYPE_INT_COLOR_ARGB4    = 30
-TYPE_INT_COLOR_ARGB8    = 28
-TYPE_INT_COLOR_RGB4     = 31
-TYPE_INT_COLOR_RGB8     = 29
-TYPE_INT_DEC            = 16
-TYPE_INT_HEX            = 17
-TYPE_LAST_COLOR_INT     = 31
-TYPE_LAST_INT           = 31
-TYPE_NULL               = 0
-TYPE_REFERENCE          = 1
-TYPE_STRING             = 3
-
-RADIX_MULTS             =   [ 0.00390625, 3.051758E-005, 1.192093E-007, 4.656613E-010 ]
-DIMENSION_UNITS         =   [ "px","dip","sp","pt","in","mm","","" ]
-FRACTION_UNITS          =   [ "%","%p","","","","","","" ]
-
-COMPLEX_UNIT_MASK        =   15
 
