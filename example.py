@@ -1,10 +1,10 @@
 #!/usr/bin/python
 
-import apk
+import axmlprinter
 from xml.dom import minidom
 
 def main():
-  ap = apk.AXMLPrinter(open('test.xml', 'rb').read())
+  ap = axmlprinter.AXMLPrinter(open('test.xml', 'rb').read())
   buff = minidom.parseString(ap.getBuff()).toprettyxml()
   print(buff)
 
