@@ -18,7 +18,6 @@
 
 import bytecode
 
-import androconf
 import stringblock
 import typeconstants as tc
 from stringblock import StringBlock

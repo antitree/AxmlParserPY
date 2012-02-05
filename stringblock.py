@@ -18,7 +18,6 @@
 
 import bytecode
 
-import androconf
 from bytecode import SV
 
 import StringIO

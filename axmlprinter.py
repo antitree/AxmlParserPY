@@ -1,4 +1,4 @@
-# This file is part of Androguard.
+# This file is part oPf Androguard.
 #
 # Copyright (C) 2010, Anthony Desnos <desnos at t0t0.fr>
 # All rights reserved.
@@ -18,7 +18,6 @@
 
 import bytecode
 
-import androconf
 import typeconstants as tc
 from stringblock import StringBlock
 from axmlparser import AXMLParser
@@ -108,7 +107,9 @@ class AXMLPrinter :
             return "#%08X" % _data
 
         elif _type >= tc.TYPE_FIRST_INT and _type <= tc.TYPE_LAST_INT :
-            return "%d" % androconf.long2int( _data )
+	    if _data > 0x7fffffff:
+		_data = (0x7fffffff & _data) - 0x80000000
+            return "%d" % _data
 
         return "<0x%X, type 0x%02X>" % (_data, _type)
 
