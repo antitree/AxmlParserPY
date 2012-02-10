@@ -1,0 +1,16 @@
+<?xml version="1.0" ?><manifest android:versionCode="4" android:versionName="2.2" package="com.antitree.sshuntunnel" xmlns:android="http://schemas.android.com/apk/res/android">
+<uses-sdk android:minSdkVersion="8">
+</uses-sdk>
+<application android:icon="@7F020000" android:label="@7F040001">
+<activity android:label="@7F040001" android:name=".SshUnTunnelActivity">
+<intent-filter>
+<action android:name="android.intent.action.MAIN">
+</action>
+<category android:name="android.intent.category.LAUNCHER">
+</category>
+</intent-filter>
+</activity>
+</application>
+<uses-permission android:name="android.permission.INTERNET">
+</uses-permission>
+</manifest>
