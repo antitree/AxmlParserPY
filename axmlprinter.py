@@ -19,7 +19,6 @@
 import bytecode
 
 import typeconstants as tc
-from stringblock import StringBlock
 from axmlparser import AXMLParser
 from bytecode import SV
 
@@ -38,9 +37,9 @@ class AXMLPrinter :
             _type = self.axml.next()
 #           print "tagtype = ", _type
 
-            if _type == StringBlock.START_DOCUMENT :
+            if _type == tc.START_DOCUMENT :
                 self.buff += "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
-            elif _type == StringBlock.START_TAG :
+            elif _type == tc.START_TAG :
                 self.buff += "<%s%s\n" % ( self.getPrefix( self.axml.getPrefix() ), self.axml.getName() )
 
                 # FIXME : use namespace
@@ -53,13 +52,13 @@ class AXMLPrinter :
 
                 self.buff += ">\n"
 
-            elif _type == StringBlock.END_TAG :
+            elif _type == tc.END_TAG :
                 self.buff += "</%s%s>\n" % ( self.getPrefix( self.axml.getPrefix() ), self.axml.getName() )
 
-            elif _type == StringBlock.TEXT :
+            elif _type == tc.TEXT :
                 self.buff += "%s\n" % self.axml.getText()
 
-            elif _type == StringBlock.END_DOCUMENT :
+            elif _type == tc.END_DOCUMENT :
                 break
 
     def getBuff(self) :
