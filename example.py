@@ -9,5 +9,4 @@ def main():
   print(buff)
 
 if __name__ == "__main__":
-  print("Starting")
   main()
