@@ -1,1 +1,8 @@
+# ignore precompiled python files
 *.pyc
+
+# ignore vim editor leftovers
+.*.swp
+.*.swo
+.*~
+*~

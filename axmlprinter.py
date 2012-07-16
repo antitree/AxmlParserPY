@@ -1,4 +1,4 @@
-# This file is part oPf Androguard.
+# This file is part of Androguard.
 #
 # Copyright (C) 2010, Anthony Desnos <desnos at t0t0.fr>
 # All rights reserved.
@@ -26,97 +26,100 @@ import StringIO
 from struct import pack, unpack
 from xml.dom import minidom
 
-class AXMLPrinter :
-    def __init__(self, raw_buff) :
-        self.axml = AXMLParser( raw_buff )
+class AXMLPrinter:
+    def __init__(self, raw_buff):
+        self.axml = AXMLParser(raw_buff)
         self.xmlns = False
 
         self.buff = ""
 
-        while 1 :
+        while 1:
             _type = self.axml.next()
-#           print "tagtype = ", _type
+            #print "tagtype = ", _type
 
-            if _type == tc.START_DOCUMENT :
+            if _type == tc.START_DOCUMENT:
                 self.buff += "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
-            elif _type == tc.START_TAG :
-                self.buff += "<%s%s\n" % ( self.getPrefix( self.axml.getPrefix() ), self.axml.getName() )
+            elif _type == tc.START_TAG:
+                self.buff += "<%s%s\n" % (self.getPrefix(self.axml.getPrefix()), self.axml.getName())
 
-                # FIXME : use namespace
-                if self.xmlns == False :
-                    self.buff += "xmlns:%s=\"%s\"\n" % ( self.axml.getNamespacePrefix( 0 ), self.axml.getNamespaceUri( 0 ) )
+                # FIXME: use namespace
+                if self.xmlns == False:
+                    self.buff += "xmlns:%s=\"%s\"\n" % (self.axml.getNamespacePrefix(0), self.axml.getNamespaceUri(0))
                     self.xmlns = True
 
-                for i in range(0, self.axml.getAttributeCount()) :
-                    self.buff += "%s%s=\"%s\"\n" % ( self.getPrefix( self.axml.getAttributePrefix(i) ), self.axml.getAttributeName(i), self.getAttributeValue( i ) )
+                for i in range(0, self.axml.getAttributeCount()):
+                    self.buff += "%s%s=\"%s\"\n" % (self.getPrefix(self.axml.getAttributePrefix(i)), self.axml.getAttributeName(i), self.getAttributeValue(i))
 
                 self.buff += ">\n"
 
-            elif _type == tc.END_TAG :
-                self.buff += "</%s%s>\n" % ( self.getPrefix( self.axml.getPrefix() ), self.axml.getName() )
+            elif _type == tc.END_TAG:
+                self.buff += "</%s%s>\n" % (self.getPrefix(self.axml.getPrefix()), self.axml.getName())
 
-            elif _type == tc.TEXT :
+            elif _type == tc.TEXT:
                 self.buff += "%s\n" % self.axml.getText()
 
-            elif _type == tc.END_DOCUMENT :
+            elif _type == tc.END_DOCUMENT:
                 break
 
-    def getBuff(self) :
+    def getBuff(self):
         return self.buff.encode("utf-8")
 
-    def getPrefix(self, prefix) :
-        if prefix == None or len(prefix) == 0 :
+    def getPrefix(self, prefix):
+        if prefix == None or len(prefix) == 0:
             return ""
 
         return prefix + ":"
 
-    def getAttributeValue(self, index) :
+    def getAttributeValue(self, index):
         _type = self.axml.getAttributeValueType(index)
         _data = self.axml.getAttributeValueData(index)
 
         #print _type, _data
-        if _type == tc.TYPE_STRING :
-            return self.axml.getAttributeValue( index )
+        if _type == tc.TYPE_STRING:
+            return self.axml.getAttributeValue(index)
 
-        elif _type == tc.TYPE_ATTRIBUTE :
+        elif _type == tc.TYPE_ATTRIBUTE:
             return "?%s%08X" % (self.getPackage(_data), _data)
 
-        elif _type == tc.TYPE_REFERENCE :
+        elif _type == tc.TYPE_REFERENCE:
             return "@%s%08X" % (self.getPackage(_data), _data)
 
         # WIP
-        elif _type == tc.TYPE_FLOAT :
-            return "%f" % unpack("=f", pack("=L", _data))[0] 
+        elif _type == tc.TYPE_FLOAT:
+            return "%f" % unpack("=f", pack("=L", _data))[0]
 
-        elif _type == tc.TYPE_INT_HEX :
+        elif _type == tc.TYPE_INT_HEX:
             return "0x%08X" % _data
 
-        elif _type == tc.TYPE_INT_BOOLEAN :
-            if _data == 0 :
+        elif _type == tc.TYPE_INT_BOOLEAN:
+            if _data == 0:
                 return "false"
             return "true"
 
-        elif _type == tc.TYPE_DIMENSION :
+        elif _type == tc.TYPE_DIMENSION:
             return "%f%s" % (self.complexToFloat(_data), tc.DIMENSION_UNITS[_data & tc.COMPLEX_UNIT_MASK])
 
-        elif _type == tc.TYPE_FRACTION :
+        elif _type == tc.TYPE_FRACTION:
             return "%f%s" % (self.complexToFloat(_data), tc.FRACTION_UNITS[_data & tc.COMPLEX_UNIT_MASK])
 
-        elif _type >= tc.TYPE_FIRST_COLOR_INT and _type <= tc.TYPE_LAST_COLOR_INT :
+        elif _type >= tc.TYPE_FIRST_COLOR_INT and _type <= tc.TYPE_LAST_COLOR_INT:
             return "#%08X" % _data
 
-        elif _type >= tc.TYPE_FIRST_INT and _type <= tc.TYPE_LAST_INT :
-	    if _data > 0x7fffffff:
-		_data = (0x7fffffff & _data) - 0x80000000
-            return "%d" % _data
+        elif _type >= tc.TYPE_FIRST_INT and _type <= tc.TYPE_LAST_INT:
+            if _data > 0x7fffffff:
+                _data = (0x7fffffff & _data) - 0x80000000
+                return "%d" % _data
+            elif _type == tc.TYPE_INT_DEC:
+                return "%d" % _data
 
+        # raise exception here?
         return "<0x%X, type 0x%02X>" % (_data, _type)
 
-    def complexToFloat(self, xcomplex) :
+    def complexToFloat(self, xcomplex):
         return (float)(xcomplex & 0xFFFFFF00) * tc.RADIX_MULTS[(xcomplex>>4) & 3];
 
-    def getPackage(self, id) :
-        if id >> 24 == 1 :
+    def getPackage(self, id):
+        if id >> 24 == 1:
             return "android:"
         return ""
 

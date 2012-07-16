@@ -24,58 +24,58 @@ import StringIO
 from struct import pack, unpack
 from xml.dom import minidom
 
+class StringBlock:
+    """
+    axml format translated from:
+    http://code.google.com/p/android4me/source/browse/src/android/content/res/AXmlResourceParser.java
+    """
+    def __init__(self, buff):
+        buff.read(4)
 
-######################################################## AXML FORMAT ########################################################
-# Translated from http://code.google.com/p/android4me/source/browse/src/android/content/res/AXmlResourceParser.java
-class StringBlock :
+        self.chunkSize = SV('<L', buff.read(4))
+        self.stringCount = SV('<L', buff.read(4))
+        self.styleOffsetCount = SV('<L', buff.read(4))
 
-    def __init__(self, buff) :
-        buff.read( 4 )
-
-        self.chunkSize = SV( '<L', buff.read( 4 ) )
-        self.stringCount = SV( '<L', buff.read( 4 ) )
-        self.styleOffsetCount = SV( '<L', buff.read( 4 ) )
-        
         # unused value ?
         buff.read(4) # ?
-        
-        self.stringsOffset = SV( '<L', buff.read( 4 ) )
-        self.stylesOffset = SV( '<L', buff.read( 4 ) )
+
+        self.stringsOffset = SV('<L', buff.read(4))
+        self.stylesOffset = SV('<L', buff.read(4))
 
         self.m_stringOffsets = []
         self.m_styleOffsets = []
         self.m_strings = []
         self.m_styles = []
 
-        for i in range(0, self.stringCount.get_value()) :
-            self.m_stringOffsets.append( SV( '<L', buff.read( 4 ) ) )
+        for i in range(0, self.stringCount.get_value()):
+            self.m_stringOffsets.append(SV('<L', buff.read(4)))
 
-        for i in range(0, self.styleOffsetCount.get_value()) :
-            self.m_stylesOffsets.append( SV( '<L', buff.read( 4 ) ) )
+        for i in range(0, self.styleOffsetCount.get_value()):
+            self.m_stylesOffsets.append(SV('<L', buff.read(4)))
 
         size = self.chunkSize.get_value() - self.stringsOffset.get_value()
-        if self.stylesOffset.get_value() != 0 :
+        if self.stylesOffset.get_value() != 0:
             size = self.stylesOffset.get_value() - self.stringsOffset.get_value()
 
         # FIXME
-        if (size%4) != 0 :
+        if (size % 4) != 0:
             pass
 
-        for i in range(0, size / 4) :
-            self.m_strings.append( SV( '=L', buff.read( 4 ) ) )
+        for i in range(0, size / 4):
+            self.m_strings.append(SV('=L', buff.read(4)))
 
-        if self.stylesOffset.get_value() != 0 :
+        if self.stylesOffset.get_value() != 0:
             size = self.chunkSize.get_value() - self.stringsOffset.get_value()
-            
+
             # FIXME
-            if (size%4) != 0 :
+            if (size % 4) != 0:
                 pass
 
-            for i in range(0, size / 4) :
-                self.m_styles.append( SV( '=L', buff.read( 4 ) ) )
+            for i in range(0, size / 4):
+                self.m_styles.append(SV('=L', buff.read(4)))
 
-    def getRaw(self, idx) :
-        if idx < 0 or self.m_stringOffsets == [] or idx >= len(self.m_stringOffsets) :
+    def getRaw(self, idx):
+        if idx < 0 or self.m_stringOffsets == [] or idx >= len(self.m_stringOffsets):
             return None
 
         offset = self.m_stringOffsets[ idx ].get_value()
@@ -83,25 +83,23 @@ class StringBlock :
 
         data = ""
 
-        while length > 0 :
+        while length > 0:
             offset += 2
             # Unicode character
-            data += unichr( self.getShort(self.m_strings, offset) )
-            
+            data += unichr(self.getShort(self.m_strings, offset))
+
             # FIXME
-            if data[-1] == "&" :
+            if data[-1] == "&":
                 data = data[:-1]
 
             length -= 1
 
         return data
 
-    def getShort(self, array, offset) :
-
-        value = array[offset/4].get_value()
-        if ((offset%4)/2) == 0 :
+    def getShort(self, array, offset):
+        value = array[offset / 4].get_value()
+        if ((offset % 4) / 2) == 0:
             return value & 0xFFFF
-        else :
+        else:
             return value >> 16
-
 
