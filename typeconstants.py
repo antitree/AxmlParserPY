@@ -24,6 +24,7 @@ TYPE_FLOAT              = 4
 TYPE_DIMENSION          = 5
 TYPE_FRACTION           = 6
 TYPE_FIRST_INT          = 16
+TYPE_INT_DEC            = 16
 TYPE_INT_BOOLEAN        = 18
 TYPE_FIRST_COLOR_INT    = 28
 TYPE_INT_COLOR_ARGB4    = 30

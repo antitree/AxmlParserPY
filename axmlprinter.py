@@ -109,7 +109,10 @@ class AXMLPrinter:
             if _data > 0x7fffffff:
                 _data = (0x7fffffff & _data) - 0x80000000
                 return "%d" % _data
+            elif _type == tc.TYPE_INT_DEC:
+                return "%d" % _data
 
+        # raise exception here?
         return "<0x%X, type 0x%02X>" % (_data, _type)
 
     def complexToFloat(self, xcomplex):
