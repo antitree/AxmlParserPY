@@ -1,4 +1,4 @@
-# This file is part oPf Androguard.
+# This file is part of Androguard.
 #
 # Copyright (C) 2010, Anthony Desnos <desnos at t0t0.fr>
 # All rights reserved.
