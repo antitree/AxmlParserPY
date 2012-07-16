@@ -106,9 +106,9 @@ class AXMLPrinter:
             return "#%08X" % _data
 
         elif _type >= tc.TYPE_FIRST_INT and _type <= tc.TYPE_LAST_INT:
-        if _data > 0x7fffffff:
-        _data = (0x7fffffff & _data) - 0x80000000
-            return "%d" % _data
+            if _data > 0x7fffffff:
+                _data = (0x7fffffff & _data) - 0x80000000
+                return "%d" % _data
 
         return "<0x%X, type 0x%02X>" % (_data, _type)
 
