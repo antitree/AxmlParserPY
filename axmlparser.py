@@ -66,6 +66,7 @@ class AXMLParser:
         event = self.m_event
 
         self.reset()
+
         while 1:
             chunkType = -1
 
@@ -81,7 +82,6 @@ class AXMLParser:
                     self.m_event = tc.END_DOCUMENT
                     break
                 chunkType = SV('<L', self.buff.read(4)).get_value()
-
 
             if chunkType == tc.CHUNK_RESOURCEIDS:
                 chunkSize = SV('<L', self.buff.read(4)).get_value()
@@ -123,7 +123,6 @@ class AXMLParser:
                     #del self.m_uriprefix[ uri ]
 
                 continue
-
 
             self.m_lineNumber = lineNumber
 
