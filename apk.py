@@ -29,7 +29,7 @@ try :
     import chilkat
     ZIPMODULE = 0
     # UNLOCK : change it with your valid key !
-    try : 
+    try :
         CHILKAT_KEY = open("key.txt", "rb").read()
     except Exception :
         CHILKAT_KEY = "testme"
@@ -66,7 +66,7 @@ class APK :
             self.zip = ChilkatZip( self.__raw )
         else :
             self.zip = zipfile.ZipFile( StringIO.StringIO( self.__raw ) )
-        
+
         # CHECK if there is only one embedded file
         #self._reload_apk()
 
@@ -115,7 +115,7 @@ class APK :
 
     def get_androidversion_name(self) :
         """
-            Return the android version name 
+            Return the android version name
         """
         return self.androidversion["Name"]
 
@@ -129,23 +129,23 @@ class APK :
         """
             Return the files inside the APK with their types (by using python-magic)
         """
-        try : 
+        try :
             import magic
         except ImportError :
             return {}
 
         l = {}
-        
+
         builtin_magic = 0
         try :
             getattr(magic, "Magic")
         except AttributeError :
             builtin_magic = 1
-                
+
         if builtin_magic :
             ms = magic.open(magic.MAGIC_NONE)
             ms.load()
-            
+
             for i in self.get_files() :
                 l[ i ] = ms.buffer( self.zip.read( i ) )
         else :
@@ -156,7 +156,7 @@ class APK :
         return l
 
     def get_raw(self) :
-        """ 
+        """
             Return raw bytes of the APK
         """
         return self.__raw
@@ -187,9 +187,9 @@ class APK :
         for i in self.xml :
             for item in self.xml[i].getElementsByTagName(tag_name) :
                 value = item.getAttribute(attribute)
-               
+
                 if len(value) > 0 :
-                    if value[0] == "." : 
+                    if value[0] == "." :
                         value = self.package + value
                     else :
                         v_dot = value.find(".")
