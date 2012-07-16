@@ -21,10 +21,6 @@ from struct import unpack, pack
 global PRETTY_SHOW
 PRETTY_SHOW = 0
 
-# Handle exit message
-def Exit(msg):
-    print("oops")
-
 # Print arg into a correct format
 def _Print(name, arg):
     buff = name + " "
