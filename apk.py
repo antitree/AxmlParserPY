@@ -33,7 +33,6 @@ try:
         CHILKAT_KEY = open("key.txt", "rb").read()
     except Exception:
         CHILKAT_KEY = "testme"
-
 except ImportError:
     ZIPMODULE = 1
 
@@ -50,7 +49,7 @@ class APK:
         self.package = ""
         self.androidversion = {}
         self.permissions = []
-        self.validAPK = False
+        self.valid_apk = False
 
         if raw == True:
             self.__raw = filename
@@ -78,10 +77,10 @@ class APK:
                 for item in self.xml[i].getElementsByTagName("uses-permission"):
                     self.permissions.append(str(item.getAttribute("android:name")))
 
-                self.validAPK = True
+                self.valid_apk = True
 
-    def is_valid_APK(self):
-        return self.validAPK
+    def is_valid_apk(self):
+        return self.valid_apk
 
     #def _reload_apk(self):
     #    if len(files) == 1:
@@ -109,18 +108,21 @@ class APK:
             Return the android version code
         """
         return self.androidversion["Code"]
+    androidversion_code = property(get_androidversion_code)
 
     def get_androidversion_name(self):
         """
             Return the android version name
         """
         return self.androidversion["Name"]
+    androidversion_name = property(get_androidversion_name)
 
     def get_files(self):
         """
             Return the files inside the APK
         """
         return self.zip.namelist()
+    files = property(get_files)
 
     def get_files_types(self):
         """
@@ -151,12 +153,14 @@ class APK:
                 l[ i ] = m.from_buffer(self.zip.read(i))
 
         return l
+    files_types = property(get_files_types)
 
     def get_raw(self):
         """
             Return raw bytes of the APK
         """
         return self.__raw
+    raw = property(get_raw)
 
     def get_file(self, filename):
         """
@@ -172,6 +176,7 @@ class APK:
             Return the raw data of the classes dex file
         """
         return self.get_file("classes.dex")
+    dex = property(get_dex)
 
     def get_elements(self, tag_name, attribute):
         """
@@ -219,48 +224,56 @@ class APK:
             Return the android:name attribute of all activities
         """
         return self.get_elements("activity", "android:name")
+    activities = property(get_activities)
 
     def get_services(self):
         """
             Return the android:name attribute of all services
         """
         return self.get_elements("service", "android:name")
+    services = property(get_services)
 
     def get_receivers(self):
         """
             Return the android:name attribute of all receivers
         """
         return self.get_elements("receiver", "android:name")
+    receivers = property(get_receivers)
 
     def get_providers(self):
         """
             Return the android:name attribute of all providers
         """
         return self.get_elements("provider", "android:name")
+    providers = property(get_providers)
 
     def get_permissions(self):
         """
             Return permissions
         """
         return self.permissions
+    permissions = property(get_permissions)
 
     def get_min_sdk_version(self):
         """
             Return the android:minSdkVersion attribute
         """
         return self.get_element("uses-sdk", "android:minSdkVersion")
+    min_sdk_version = property(get_min_sdk_version)
 
     def get_target_sdk_version(self):
         """
             Return the android:targetSdkVersion attribute
         """
         return self.get_element("uses-sdk", "android:targetSdkVersion")
+    target_sdk_version = property(get_target_sdk_version)
 
     def get_libraries(self):
         """
             Return the android:name attributes for libraries
         """
         return self.get_elements("uses-library", "android:name")
+    libraries = property(get_libraries)
 
     def show(self):
         print "FILES: ", self.get_files_types()
