@@ -16,7 +16,6 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Androguard.  If not, see <http://www.gnu.org/licenses/>.
 
-
 TYPE_NULL               = 0
 TYPE_REFERENCE          = 1
 TYPE_ATTRIBUTE          = 2
@@ -64,6 +63,4 @@ END_DOCUMENT                = 1
 START_TAG                   = 2
 END_TAG                     = 3
 TEXT                        = 4
-
-
 

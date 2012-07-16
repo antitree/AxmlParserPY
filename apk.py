@@ -25,26 +25,24 @@ import zipfile, StringIO
 from struct import pack, unpack
 from xml.dom import minidom
 
-try :
+try:
     import chilkat
     ZIPMODULE = 0
-    # UNLOCK : change it with your valid key !
-    try :
+    # UNLOCK: change it with your valid key !
+    try:
         CHILKAT_KEY = open("key.txt", "rb").read()
-    except Exception :
+    except Exception:
         CHILKAT_KEY = "testme"
 
-except ImportError :
+except ImportError:
     ZIPMODULE = 1
 
-
-######################################################## APK FORMAT ########################################################
-class APK :
+class APK:
     """APK manages apk file format"""
-    def __init__(self, filename, raw=False) :
+    def __init__(self, filename, raw=False):
         """
-            @param filename : specify the path of the file, or raw data
-            @param raw : specify (boolean) if the filename is a path or raw data
+            @param filename: specify the path of the file, or raw data
+            @param raw: specify (boolean) if the filename is a path or raw data
         """
         self.filename = filename
 
@@ -54,224 +52,221 @@ class APK :
         self.permissions = []
         self.validAPK = False
 
-        if raw == True :
+        if raw == True:
             self.__raw = filename
-        else :
-            fd = open( filename, "rb" )
+        else:
+            fd = open(filename, "rb")
             self.__raw = fd.read()
             fd.close()
 
-
-        if ZIPMODULE == 0 :
-            self.zip = ChilkatZip( self.__raw )
-        else :
-            self.zip = zipfile.ZipFile( StringIO.StringIO( self.__raw ) )
+        if ZIPMODULE == 0:
+            self.zip = ChilkatZip(self.__raw)
+        else:
+            self.zip = zipfile.ZipFile(StringIO.StringIO(self.__raw))
 
         # CHECK if there is only one embedded file
         #self._reload_apk()
 
-        for i in self.zip.namelist() :
-            if i == "AndroidManifest.xml" :
-                self.xml[i] = minidom.parseString( AXMLPrinter( self.zip.read( i ) ).getBuff() )
+        for i in self.zip.namelist():
+            if i == "AndroidManifest.xml":
+                self.xml[i] = minidom.parseString(AXMLPrinter(self.zip.read(i)).getBuff())
 
-                self.package = self.xml[i].documentElement.getAttribute( "package" )
-                self.androidversion["Code"] = self.xml[i].documentElement.getAttribute( "android:versionCode" )
-                self.androidversion["Name"] = self.xml[i].documentElement.getAttribute( "android:versionName")
+                self.package = self.xml[i].documentElement.getAttribute("package")
+                self.androidversion["Code"] = self.xml[i].documentElement.getAttribute("android:versionCode")
+                self.androidversion["Name"] = self.xml[i].documentElement.getAttribute("android:versionName")
 
-                for item in self.xml[i].getElementsByTagName('uses-permission') :
-                    self.permissions.append( str( item.getAttribute("android:name") ) )
+                for item in self.xml[i].getElementsByTagName("uses-permission"):
+                    self.permissions.append(str(item.getAttribute("android:name")))
 
                 self.validAPK = True
 
-    def is_valid_APK(self) :
+    def is_valid_APK(self):
         return self.validAPK
 
-    #def _reload_apk(self) :
-    #    if len(files) == 1 :
-    #        if ".apk" in files[0] :
-    #            self.__raw = self.zip.read( files[0] )
-    #            if ZIPMODULE == 0 :
-    #                self.zip = ChilkatZip( self.__raw )
-    #            else :
-    #                self.zip = zipfile.ZipFile( StringIO.StringIO( self.__raw ) )
+    #def _reload_apk(self):
+    #    if len(files) == 1:
+    #        if ".apk" in files[0]:
+    #            self.__raw = self.zip.read(files[0])
+    #            if ZIPMODULE == 0:
+    #                self.zip = ChilkatZip(self.__raw)
+    #            else:
+    #                self.zip = zipfile.ZipFile(StringIO.StringIO(self.__raw))
 
-    def get_filename(self) :
+    def get_filename(self):
         """
             Return the filename of the APK
         """
         return self.filename
 
-    def get_package(self) :
+    def get_package(self):
         """
             Return the name of the package
         """
         return self.package
 
-    def get_androidversion_code(self) :
+    def get_androidversion_code(self):
         """
             Return the android version code
         """
         return self.androidversion["Code"]
 
-    def get_androidversion_name(self) :
+    def get_androidversion_name(self):
         """
             Return the android version name
         """
         return self.androidversion["Name"]
 
-    def get_files(self) :
+    def get_files(self):
         """
             Return the files inside the APK
         """
         return self.zip.namelist()
 
-    def get_files_types(self) :
+    def get_files_types(self):
         """
             Return the files inside the APK with their types (by using python-magic)
         """
-        try :
+        try:
             import magic
-        except ImportError :
+        except ImportError:
             return {}
 
         l = {}
 
         builtin_magic = 0
-        try :
+        try:
             getattr(magic, "Magic")
-        except AttributeError :
+        except AttributeError:
             builtin_magic = 1
 
-        if builtin_magic :
+        if builtin_magic:
             ms = magic.open(magic.MAGIC_NONE)
             ms.load()
 
-            for i in self.get_files() :
-                l[ i ] = ms.buffer( self.zip.read( i ) )
-        else :
+            for i in self.get_files():
+                l[ i ] = ms.buffer(self.zip.read(i))
+        else:
             m = magic.Magic()
-            for i in self.get_files() :
-                l[ i ] = m.from_buffer( self.zip.read( i ) )
+            for i in self.get_files():
+                l[ i ] = m.from_buffer(self.zip.read(i))
 
         return l
 
-    def get_raw(self) :
+    def get_raw(self):
         """
             Return raw bytes of the APK
         """
         return self.__raw
 
-    def get_file(self, filename) :
+    def get_file(self, filename):
         """
             Return the raw data of the specified filename
         """
-        try :
-            return self.zip.read( filename )
-        except KeyError :
+        try:
+            return self.zip.read(filename)
+        except KeyError:
             return ""
 
-    def get_dex(self) :
+    def get_dex(self):
         """
             Return the raw data of the classes dex file
         """
-        return self.get_file( "classes.dex" )
+        return self.get_file("classes.dex")
 
-    def get_elements(self, tag_name, attribute) :
+    def get_elements(self, tag_name, attribute):
         """
             Return elements in xml files which match with the tag name and the specific attribute
 
-            @param tag_name : a string which specify the tag name
-            @param attribute : a string which specify the attribute
+            @param tag_name: a string which specify the tag name
+            @param attribute: a string which specify the attribute
         """
         l = []
-        for i in self.xml :
-            for item in self.xml[i].getElementsByTagName(tag_name) :
+        for i in self.xml:
+            for item in self.xml[i].getElementsByTagName(tag_name):
                 value = item.getAttribute(attribute)
 
-                if len(value) > 0 :
-                    if value[0] == "." :
+                if len(value) > 0:
+                    if value[0] == ".":
                         value = self.package + value
-                    else :
+                    else:
                         v_dot = value.find(".")
-                        if v_dot == 0 :
+                        if v_dot == 0:
                             value = self.package + "." + value
-                        elif v_dot == -1 :
+                        elif v_dot == -1:
                             value = self.package + "." + value
 
-                l.append( str( value ) )
+                l.append(str(value))
         return l
 
-    def get_element(self, tag_name, attribute) :
+    def get_element(self, tag_name, attribute):
         """
             Return element in xml files which match with the tag name and the specific attribute
 
-            @param tag_name : a string which specify the tag name
-            @param attribute : a string which specify the attribute
+            @param tag_name: a string which specify the tag name
+            @param attribute: a string which specify the attribute
         """
         l = []
-        for i in self.xml :
-            for item in self.xml[i].getElementsByTagName(tag_name) :
+        for i in self.xml:
+            for item in self.xml[i].getElementsByTagName(tag_name):
                 value = item.getAttribute(attribute)
 
-                if len(value) > 0 :
+                if len(value) > 0:
                     return value
         return None
 
-    def get_activities(self) :
+    def get_activities(self):
         """
             Return the android:name attribute of all activities
         """
         return self.get_elements("activity", "android:name")
 
-    def get_services(self) :
+    def get_services(self):
         """
             Return the android:name attribute of all services
         """
         return self.get_elements("service", "android:name")
 
-    def get_receivers(self) :
+    def get_receivers(self):
         """
             Return the android:name attribute of all receivers
         """
         return self.get_elements("receiver", "android:name")
 
-    def get_providers(self) :
+    def get_providers(self):
         """
             Return the android:name attribute of all providers
         """
         return self.get_elements("provider", "android:name")
 
-    def get_permissions(self) :
+    def get_permissions(self):
         """
             Return permissions
         """
         return self.permissions
 
-    def get_min_sdk_version(self) :
+    def get_min_sdk_version(self):
         """
             Return the android:minSdkVersion attribute
         """
-        return self.get_element( "uses-sdk", "android:minSdkVersion" )
+        return self.get_element("uses-sdk", "android:minSdkVersion")
 
-    def get_target_sdk_version(self) :
+    def get_target_sdk_version(self):
         """
             Return the android:targetSdkVersion attribute
         """
-        return self.get_element( "uses-sdk", "android:targetSdkVersion" )
+        return self.get_element("uses-sdk", "android:targetSdkVersion")
 
-    def get_libraries(self) :
+    def get_libraries(self):
         """
             Return the android:name attributes for libraries
         """
-        return self.get_elements( "uses-library", "android:name" )
+        return self.get_elements("uses-library", "android:name")
 
-    def show(self) :
-        print "FILES : ", self.get_files_types()
+    def show(self):
+        print "FILES: ", self.get_files_types()
 
-        print "ACTIVITIES : ", self.get_activities()
-        print "SERVICES : ", self.get_services()
-        print "RECEIVERS : ", self.get_receivers()
-        print "PROVIDERS : ", self.get_providers()
-
-
+        print "ACTIVITIES: ", self.get_activities()
+        print "SERVICES: ", self.get_services()
+        print "RECEIVERS: ", self.get_receivers()
+        print "PROVIDERS: ", self.get_providers()
 
