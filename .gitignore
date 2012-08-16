@@ -6,3 +6,8 @@
 .*.swo
 .*~
 *~
+
+# ignore setuptools' build puke
+build/
+dist/
+axmlparserpy.egg-info/
