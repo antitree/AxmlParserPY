@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import axmlprinter
+from axmlparserpy import axmlprinter
 from xml.dom import minidom
 
 def main():
