@@ -16,11 +16,11 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Androguard.  If not, see <http://www.gnu.org/licenses/>.
 
-import bytecode
+import axmlparserpy.bytecode
 
-from bytecode import SV
+from axmlparserpy.bytecode import SV
 
-import StringIO
+from io import StringIO
 from struct import pack, unpack
 from xml.dom import minidom
 
@@ -61,7 +61,7 @@ class StringBlock:
         if (size % 4) != 0:
             pass
 
-        for i in range(0, size / 4):
+        for i in range(0, int(size / 4)):
             self.m_strings.append(SV('=L', buff.read(4)))
 
         if self.stylesOffset.get_value() != 0:
@@ -86,7 +86,7 @@ class StringBlock:
         while length > 0:
             offset += 2
             # Unicode character
-            data += unichr(self.getShort(self.m_strings, offset))
+            data += chr(self.getShort(self.m_strings, offset))
 
             # FIXME
             if data[-1] == "&":
@@ -97,8 +97,8 @@ class StringBlock:
         return data
 
     def getShort(self, array, offset):
-        value = array[offset / 4].get_value()
-        if ((offset % 4) / 2) == 0:
+        value = array[int(offset / 4)].get_value()
+        if (int((offset % 4)) / 2) == 0:
             return value & 0xFFFF
         else:
             return value >> 16
