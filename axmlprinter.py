@@ -25,6 +25,8 @@ from bytecode import SV
 import StringIO
 from struct import pack, unpack
 from xml.dom import minidom
+from xml.sax.saxutils import escape
+
 
 class AXMLPrinter:
     def __init__(self, raw_buff):
@@ -76,7 +78,7 @@ class AXMLPrinter:
 
         #print _type, _data
         if _type == tc.TYPE_STRING:
-            return self.axml.getAttributeValue(index)
+            return escape(self.axml.getAttributeValue(index), entities={'"': '&quot;'})
 
         elif _type == tc.TYPE_ATTRIBUTE:
             return "?%s%08X" % (self.getPackage(_data), _data)
