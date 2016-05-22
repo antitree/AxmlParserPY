@@ -16,14 +16,14 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Androguard.  If not, see <http://www.gnu.org/licenses/>.
 
-import bytecode
+import axmlparserpy.bytecode
 
-import stringblock
-import typeconstants as tc
-from stringblock import StringBlock
-from bytecode import SV
+import axmlparserpy.stringblock
+import axmlparserpy.typeconstants as tc
+from axmlparserpy.stringblock import StringBlock
+from axmlparserpy.bytecode import SV
 
-import StringIO
+from io import StringIO
 from struct import pack, unpack
 from xml.dom import minidom
 
@@ -33,7 +33,7 @@ class AXMLParser:
     def __init__(self, raw_buff):
         self.reset()
 
-        self.buff = bytecode.BuffHandle(raw_buff)
+        self.buff = axmlparserpy.bytecode.BuffHandle(raw_buff)
 
         self.buff.read(4)
         self.buff.read(4)
@@ -89,7 +89,7 @@ class AXMLParser:
                 if chunkSize < 8 or chunkSize%4 != 0:
                     raise("ooo")
 
-                for i in range(0, chunkSize/4-2):
+                for i in range(0, int(chunkSize/4-2)):
                     self.m_resourceIDs.append(SV('<L', self.buff.read(4)))
 
                 continue
@@ -217,7 +217,7 @@ class AXMLParser:
         if self.m_event != tc.START_TAG:
             return -1
 
-        return len(self.m_attributes) / tc.ATTRIBUTE_LENGTH
+        return int(len(self.m_attributes) / tc.ATTRIBUTE_LENGTH)
 
     def getAttributePrefix(self, index):
         offset = self.getAttributeOffset(index)
