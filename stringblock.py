@@ -51,7 +51,7 @@ class StringBlock:
             self.m_stringOffsets.append(SV('<L', buff.read(4)))
 
         for i in range(0, self.styleOffsetCount.get_value()):
-            self.m_stylesOffsets.append(SV('<L', buff.read(4)))
+            self.m_styleOffsets.append(SV('<L', buff.read(4)))
 
         size = self.chunkSize.get_value() - self.stringsOffset.get_value()
         if self.stylesOffset.get_value() != 0:
