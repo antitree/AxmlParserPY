@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name="AxmlParserPY",
-    version="0.01",
+    version="0.0.2",
     packages=["axmlparserpy"],
     install_requires=[
     ],
@@ -13,4 +13,3 @@ setup(
 
     # ...
 )
-
