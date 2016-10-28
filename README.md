@@ -11,7 +11,6 @@ the Androguard project.
 * [Anthony Desnos](mailto:anthony.desnos@gmail.com)
 * [antitree](mailto:antitree@gmail.com)
 * [pee](mailto:pee@erkkila.org)
-* [algorythm](mailto:algorythm@gmail.com)
 * [Bryan Bishop](https://github.com/kanzure)
 
 # License
