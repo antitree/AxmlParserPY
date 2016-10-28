@@ -1,11 +1,15 @@
-from setuptools import setup, find_packages
+from setuptools import setup
 
-version = "0.0.2"
+setup(
+    name="AxmlParserPY",
+    version="0.0.2",
+    packages=["axmlparserpy"],
+    install_requires=[
+    ],
+    description="Python support for extract information from android 'apk' package",
+    author='Anthony Desnos',
+    author_email='anthony.desnos@gmail.com',
+    url='https://github.com/kzjeef/AxmlParserPY.git',
 
-setup(name="axmlparserpy",
-      version=version,
-      author="Bryan Bishop",
-      author_email="kanzure@gmail.com",
-      license="GPL",
-      description="Androguard-related tools for reverse engineering Android binary xml files (and others).",
-      packages=find_packages())
+    # ...
+)

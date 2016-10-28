@@ -1,0 +1,53 @@
+# -------------------------------------------------------------------
+# AndroidXMLParser was created by Anthony Desnos and is taken from
+# the Androguard Project.
+# -------------------------------------------------------------------
+# This program is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.
+# If not, see <http://www.gnu.org/licenses/>.
+# -------------------------------------------------------------------
+# Contributors:
+# -------------------------------------------------------------------
+# Anthony Desnos <anthony [dot] desnos [at] gmail.com>
+# Antitree <antitree [at] gmail.com>
+# pee <pee@erkkila.org> spam this
+# algorythm <algorythm [at] gmail /dot/ com>
+# Jiejing Zhang <kzjeef [at] gmail /dot/ com>  // for package to pip
+# -------------------------------------------------------------------
+# version: 0.0.2
+# -------------------------------------------------------------------
+
+Example:
+
+1. convert apk binary manifest to string manifest.
+
+import axmlparserpy.axmlprinter as axmlprinter
+
+  ap = axmlprinter.AXMLPrinter(open('example/binary/AndroidManifest.xml', 'rb').read())
+  buff = minidom.parseString(ap.getBuff()).toxml()
+  print(buff)
+
+2. get apk information
+import axmlparserpy.apk as apk
+  ap = apk.APK('_PATH_TO_APK')
+  print ap.get_package()
+  print ap.get_androidversion_name()
+
+
+CHANGELOG
+
+0.0.2
+Make library python 3 compatible
+
+0.0.1 (aka 0.01)
+Initial release

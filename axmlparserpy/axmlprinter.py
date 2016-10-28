@@ -16,17 +16,16 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Androguard.  If not, see <http://www.gnu.org/licenses/>.
 
-import bytecode
+import axmlparserpy.bytecode
 
-import typeconstants as tc
-from axmlparser import AXMLParser
-from bytecode import SV
+import axmlparserpy.typeconstants as tc
+from axmlparserpy.axmlparser import AXMLParser
+from axmlparserpy.bytecode import SV
 
-import StringIO
+from io import StringIO
 from struct import pack, unpack
 from xml.dom import minidom
-from xml.sax.saxutils import escape
-
+from xml.sax import saxutils
 
 class AXMLPrinter:
     def __init__(self, raw_buff):
@@ -78,7 +77,7 @@ class AXMLPrinter:
 
         #print _type, _data
         if _type == tc.TYPE_STRING:
-            return escape(self.axml.getAttributeValue(index), entities={'"': '&quot;'})
+            return saxutils.escape(self.axml.getAttributeValue(index), entities={'"': '&quot;'})
 
         elif _type == tc.TYPE_ATTRIBUTE:
             return "?%s%08X" % (self.getPackage(_data), _data)
