@@ -24,10 +24,10 @@
 # algorythm <algorythm [at] gmail /dot/ com>
 # Jiejing Zhang <kzjeef [at] gmail /dot/ com>  // for package to pip
 # -------------------------------------------------------------------
-# version: 0.0.1
+# version: 0.0.2
 # -------------------------------------------------------------------
 
-Example: 
+Example:
 
 1. convert apk binary manifest to string manifest.
 
@@ -43,3 +43,11 @@ import axmlparserpy.apk as apk
   print ap.get_package()
   print ap.get_androidversion_name()
 
+
+CHANGELOG
+
+0.0.2
+Make library python 3 compatible
+
+0.0.1 (aka 0.01)
+Initial release
